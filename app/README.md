@@ -1,4 +1,4 @@
-# 712Assignment2 - Android App
+# 712Assignment2 - Android App - Lance Balstad
 
 ## Description
 This is a basic Android app built using Android Studio. The app consists of two activities:
