@@ -37,7 +37,7 @@ fun CaptureImageScreen() {
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
-    ) { result: androidx.activity.result.ActivityResult -> // Explicit type
+    ) { result: androidx.activity.result.ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
             val image = result.data?.extras?.get("data") as? Bitmap
             imageBitmap = image
