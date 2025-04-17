@@ -40,7 +40,7 @@ android {
 }
 
 dependencies {
-
+    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
