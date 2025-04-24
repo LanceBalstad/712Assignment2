@@ -1,28 +1,44 @@
 package com.example.a712assignment2
 
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.a712assignment2.ui.theme._712Assignment2Theme
-import androidx.compose.ui.unit.dp
-import android.content.Intent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.example.a712assignment2.ui.theme._712Assignment2Theme
 
 class MainActivity : ComponentActivity() {
+
+    companion object {
+        // Your custom permission name (must match AndroidManifest)
+        const val PERMISSION_NAME = "com.example.a712assignment2.MSE412"
+        // Any integer ≥0 will work as request code
+        private const val REQ_MSE412 = 1001
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // ① Check & request your custom permission *before* rendering UI
+        if (ContextCompat.checkSelfPermission(this, PERMISSION_NAME)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(PERMISSION_NAME),
+                REQ_MSE412
+            )
+        }
+
         enableEdgeToEdge()
         setContent {
             _712Assignment2Theme {
@@ -30,50 +46,88 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, id: String, modifier: Modifier = Modifier) {
-    Surface(color = Color.Cyan) {
-        Text(
-            text = "$name $id",
-            modifier = modifier.padding(24.dp)
-        )
+    // ② Handle the user’s “Allow / Deny” choice
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQ_MSE412) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "MSE412 granted", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this,
+                    "MSE412 denied — you won’t be able to open the protected screen.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
     }
 }
 
 @Composable
 fun MainScreen() {
-    val context = LocalContext.current //This is the context
+    val context = LocalContext.current
 
     Column(
-        modifier = Modifier.padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         verticalArrangement = Arrangement.Center
     ) {
         Text(text = "Name: Lance Balstad")
         Text(text = "Student ID: 1359915")
 
+        // Unprotected explicit launch
         Button(onClick = {
-            val secondActivityIntent = Intent(context, SecondActivity::class.java)
-            context.startActivity(secondActivityIntent)
+            context.startActivity(
+                Intent(context, SecondActivity::class.java)
+            )
         }) {
-            Text(text = "Start Activity Explicitly")
+            Text("Start Activity Explicitly")
         }
 
+        // Protected launch—only if MSE412 granted
         Button(onClick = {
-            val sendIntent = Intent(Intent.ACTION_SEND) // Example of an implicit intent
-            sendIntent.type = "text/plain"
-            sendIntent.putExtra(Intent.EXTRA_TEXT, "This is an implicit intent example!")
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    MainActivity.PERMISSION_NAME
+                ) == PackageManager.PERMISSION_GRANTED) {
+                context.startActivity(
+                    Intent(context, SecondActivity::class.java)
+                )
+            } else {
+                Toast.makeText(
+                    context,
+                    "Please grant MSE412 permission first",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }) {
+            Text("Start Protected Activity")
+        }
+
+        // The rest of your buttons…
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = {
+            val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, "This is an implicit intent example!")
+            }
             context.startActivity(sendIntent)
         }) {
-            Text(text = "Start Activity Implicitly")
+            Text("Start Activity Implicitly")
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = {
-            val thirdActivityIntent = Intent(context, ThirdActivity::class.java)
-            context.startActivity(thirdActivityIntent)
+            context.startActivity(
+                Intent(context, ThirdActivity::class.java)
+            )
         }) {
-            Text(text = "View Image Activity")
+            Text("View Image Activity")
         }
     }
 }

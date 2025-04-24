@@ -2,8 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <permission
+        android:name="com.example.a712assignment2.MSE412"
+        android:protectionLevel="dangerous" />
+
+    <uses-permission android:name="com.example.a712assignment2.MSE412"/>
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="true" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:allowBackup="true"
@@ -30,10 +36,14 @@
         <activity
             android:name=".SecondActivity"
             android:exported="true"
+            android:permission="com.example.a712assignment2.MSE412"
             android:label="Second Activity"
-            android:theme="@style/Theme._712Assignment2" />
+            android:theme="@style/Theme._712Assignment2" >
+        </activity>
 
-        <activity android:name=".ThirdActivity" />
+        <activity
+            android:name=".ThirdActivity"
+            android:exported="true" />
 
 
     </application>
